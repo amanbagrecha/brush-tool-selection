@@ -1,0 +1,32 @@
+# metadata.txt
+[general]
+name=Brush Selection Tool
+qgisMinimumVersion=3.0
+description=Brush-style polygon selection tool similar to eCognition
+version=1.0
+author=Aman Bagrecha
+email=amanbagrecha.blr@gmail.com
+
+[category]
+category=Vector
+
+[tags]
+tags=selection,brush,polygon,vector
+
+[repository]
+repository=
+
+[tracker]
+tracker=
+
+[homepage]
+homepage=
+
+[icon]
+icon=paintbrush.png
+
+[experimental]
+experimental=False
+
+[deprecated]
+deprecated=False
