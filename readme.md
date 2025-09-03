@@ -16,8 +16,5 @@ The Brush Selection Tool provides an intuitive "painting" interface for selectin
 
 The accompanying video demonstrates the brush tool's functionality and usage workflow:
 
-<video width="640" height="480" controls>
-  <source src="17-26-19-Clip20250903172818.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Demo GIF](17-26-19-Clip20250903172818.gif)
 
