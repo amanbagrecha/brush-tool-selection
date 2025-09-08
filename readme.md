@@ -16,7 +16,9 @@ The Brush Selection Tool provides an intuitive "painting" interface for selectin
 
 The accompanying video demonstrates the brush tool's functionality and usage workflow:
 
-![Demo GIF](17-26-19-Clip20250903172818.gif)
+![Demo GIF](docs/17-26-19-Clip20250903172818.gif)
+
+[Demo Video](docs/17-26-19-Clip20250903172818.mp4)
 
 ## License
 
