@@ -28,3 +28,20 @@ This plugin is released under the GPL-2.0-or-later license. See the [LICENSE](LI
 - **QGIS Plugin Development**: Built using QGIS Plugin Builder and Qt Designer
 
 
+## Release
+
+This project uses [qgis-plugin-ci](https://github.com/opengisch/qgis-plugin-ci) to package and publish the plugin.
+
+### Required secrets
+
+The GitHub release workflow requires the following repository secrets:
+
+- `OSGEO_USERNAME` – OSGeo username with permission to publish the plugin.
+- `OSGEO_PASSWORD` – Password for the OSGeo account.
+
+### Procedure
+
+1. Update `metadata.txt` with the new version.
+2. Commit and push your changes.
+3. Create and push a tag for the new version, e.g. `git tag -a 1.0.0 -m "Release 1.0.0"` and `git push origin 1.0.0`.
+4. GitHub Actions will package the plugin and upload it to the QGIS plugin repository.

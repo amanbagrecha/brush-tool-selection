@@ -1,0 +1,24 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install qgis-plugin-ci
+        run: pip install qgis-plugin-ci
+      - name: Package plugin
+        run: qgis-plugin-ci package
+      - name: Publish to QGIS plugin repository
+        env:
+          OSGEO_USERNAME: ${{ secrets.OSGEO_USERNAME }}
+          OSGEO_PASSWORD: ${{ secrets.OSGEO_PASSWORD }}
+        run: qgis-plugin-ci release ${GITHUB_REF#refs/tags/}
