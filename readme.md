@@ -20,16 +20,7 @@ The accompanying video demonstrates the brush tool's functionality and usage wor
 
 ## License
 
-This project is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
-
-You are free to:
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially
-
-Under the following terms:
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made
-
-For more details, see the [Creative Commons CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).
+This plugin is released under the GPL-2.0-or-later license. See the [LICENSE](LICENSE) file for details.
 
 ## Credits
 

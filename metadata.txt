@@ -4,6 +4,7 @@ name=Brush Selection Tool
 qgisMinimumVersion=3.0
 description=Brush-style polygon selection tool similar to eCognition
 version=1.0
+license=GPL-2.0-or-later
 author=Aman Bagrecha
 email=amanbagrecha.blr@gmail.com
 
