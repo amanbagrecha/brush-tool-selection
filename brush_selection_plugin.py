@@ -34,6 +34,7 @@ class BrushSelectionTool(QgsMapTool):
         self.dragging = False
         self.path_points = []  # QgsPointXY[]
         self._last_added = None
+        self.shift_pressed = False
         self.setCursor(Qt.CrossCursor)
 
         # Rubber band for the *stroke* (capsule buffer along path)
@@ -63,6 +64,7 @@ class BrushSelectionTool(QgsMapTool):
         if event.button() != Qt.LeftButton:
             return
         self.dragging = True
+        self.shift_pressed = event.modifiers() & Qt.ShiftModifier
         self.path_points = []
         self._last_added = None
         self._append_point_if_far(event.pos(), force=True)
@@ -192,7 +194,8 @@ class BrushSelectionTool(QgsMapTool):
                     ids.append(feat.id())
 
             if ids:
-                method = layer.AddToSelection if self.add_to_selection else layer.SetSelection
+                should_add = self.add_to_selection or self.shift_pressed
+                method = layer.AddToSelection if should_add else layer.SetSelection
                 layer.selectByIds(ids, method)
                 layer_counts.append((layer.name(), len(ids)))
                 total += len(ids)
@@ -273,7 +276,7 @@ class BrushSelectionPlugin:
                 canvas=self.canvas,
                 radius_px=self.radius_slider.value(),
                 segments=8,
-                add_to_selection=True,
+                add_to_selection=False,
                 active_layer_only=True,
             )
             self.canvas.setMapTool(self.tool)
