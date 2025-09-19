@@ -13,12 +13,10 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
 ## Features
 - Adjustable pixel-based brush radius (1–200 px) for consistent behavior across all projections
 - Real‑time visual feedback: translucent cursor circle and brush‑stroke rubber band
-- Efficient selection using spatial indexing with bounding‑box pre‑filtering
 - Choose to add to existing selections or replace them
-- Target the active polygon layer only (default) or all polygon layers
 - **Shift + Mouse Wheel**: Dynamic radius adjustment while tool is active
 - **Shift + Click**: Add to selection mode (overrides default setting)
-- Optimized for QGIS **3.28+**
+- Optimized for QGIS **3.40+**
 
 ---
 
@@ -44,9 +42,7 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
 4. **Controls:**
    - **Shift + Mouse Wheel**: Adjust brush radius (1–200 px) in real-time
    - **Shift + Click/Drag**: Add to existing selection instead of replacing
-5. **Default Settings:**
-   - **Active layer only** – restricts selection to the current polygon layer
-   - **Replace selection** – replaces existing selection (use Shift to add instead)
+
 
 ![Demo GIF](docs/17-26-19-Clip20250903172818.gif)  
 [Download demo video](docs/17-26-19-Clip20250903172818.mp4)
