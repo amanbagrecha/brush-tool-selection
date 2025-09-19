@@ -1,7 +1,7 @@
 import os
 from qgis.PyQt.QtCore import Qt, QPoint, QElapsedTimer
 from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.PyQt.QtWidgets import QAction, QSlider, QLabel, QHBoxLayout, QWidget
+from qgis.PyQt.QtWidgets import QAction
 from qgis.core import (
     QgsProject,
     QgsGeometry,
@@ -9,7 +9,7 @@ from qgis.core import (
     QgsWkbTypes,
     QgsFeatureRequest,
     QgsRectangle,
-    QgsCoordinateTransformContext,
+    QgsVectorLayer,
 )
 from qgis.gui import QgsMapTool, QgsRubberBand
 
@@ -68,18 +68,18 @@ class BrushSelectionTool(QgsMapTool):
         self.shift_pressed = event.modifiers() & Qt.ShiftModifier
         self.path_points = []
         self._last_added = None
-        self._append_point_if_far(event.pos(), force=True)
-        self._updateVisuals(event.pos())
+        self._append_point_if_far(event.mapPoint(), force=True)
+        self._updateVisuals(event.mapPoint())
 
     def canvasMoveEvent(self, event):
         # Always update the visuals to show brush tip
-        self._updateVisuals(event.pos())
+        self._updateVisuals(event.mapPoint())
 
         if not self.dragging or not (event.buttons() & Qt.LeftButton):
             return
 
         # Record points with spacing threshold (in pixels -> map units)
-        self._append_point_if_far(event.pos())
+        self._append_point_if_far(event.mapPoint())
 
         # Update the live stroke (buffered path) as you drag
         self._updateStrokeRubberBand()
@@ -89,7 +89,7 @@ class BrushSelectionTool(QgsMapTool):
             return
 
         self.dragging = False
-        self._append_point_if_far(event.pos(), force=True)
+        self._append_point_if_far(event.mapPoint(), force=True)
 
         # Build final stroke geometry and select once
         stroke_geom = self._build_stroke_geometry(self.path_points, self._radius_mu(), self.segments)
@@ -101,6 +101,41 @@ class BrushSelectionTool(QgsMapTool):
         self._last_added = None
         self.stroke_rb.reset(QgsWkbTypes.PolygonGeometry)
 
+    def wheelEvent(self, event):
+        """Handle mouse wheel events for radius adjustment when Shift is pressed."""
+        if event.modifiers() & Qt.ShiftModifier:
+            # Get wheel delta (usually ±120 per notch)
+            delta = event.angleDelta().y()
+            step = 2 if delta > 0 else -2
+            new_radius = max(1, min(200, self.radius_px + step))
+
+            if new_radius != self.radius_px:
+                self.setRadiusPx(new_radius)
+
+                # Update cursor circle immediately for visual feedback
+                if hasattr(event, 'pos'):
+                    screen_pos = event.pos()
+                    map_point = self.toMapCoordinates(screen_pos)
+                    self._updateVisuals(map_point)
+
+            event.accept()
+            return
+
+        # Let parent handle other wheel events
+        super().wheelEvent(event)
+
+    def keyPressEvent(self, event):
+        """Track Shift key press."""
+        if event.key() == Qt.Key_Shift:
+            self.shift_pressed = True
+        super().keyPressEvent(event)
+
+    def keyReleaseEvent(self, event):
+        """Track Shift key release."""
+        if event.key() == Qt.Key_Shift:
+            self.shift_pressed = False
+        super().keyReleaseEvent(event)
+
     def deactivate(self):
         self.stroke_rb.reset(QgsWkbTypes.PolygonGeometry)
         self.cursor_rb.reset(QgsWkbTypes.PolygonGeometry)
@@ -111,11 +146,8 @@ class BrushSelectionTool(QgsMapTool):
         """Convert current pixel radius to map units based on current zoom."""
         return float(self.radius_px) * self.canvas.mapUnitsPerPixel()
 
-    def _map_point(self, screen_pt: QPoint) -> QgsPointXY:
-        return self.toMapCoordinates(screen_pt)
-
-    def _append_point_if_far(self, screen_pt: QPoint, force: bool = False):
-        mp = self._map_point(screen_pt)
+    def _append_point_if_far(self, map_point: QgsPointXY, force: bool = False):
+        mp = map_point
         if self._last_added is None or force:
             self.path_points.append(mp)
             self._last_added = mp
@@ -133,10 +165,9 @@ class BrushSelectionTool(QgsMapTool):
         dy = a.y() - b.y()
         return dx * dx + dy * dy
 
-    def _updateVisuals(self, screen_pt: QPoint):
+    def _updateVisuals(self, map_point: QgsPointXY):
         """Update the cursor circle at the tip and keep stroke_rb unchanged here."""
-        mp = self._map_point(screen_pt)
-        circle = QgsGeometry.fromPointXY(mp).buffer(self._radius_mu(), max(8, self.segments))
+        circle = QgsGeometry.fromPointXY(map_point).buffer(self._radius_mu(), max(8, self.segments))
         self.cursor_rb.setToGeometry(circle, None)
 
     def _updateStrokeRubberBand(self):
@@ -182,7 +213,7 @@ class BrushSelectionTool(QgsMapTool):
         for layer in self._iter_target_layers():
             req = (
                 QgsFeatureRequest()
-                .setFilterRect(QgsRectangle(bbox))
+                .setFilterRect(bbox)
                 .setSubsetOfAttributes([])
             )
 
@@ -196,7 +227,7 @@ class BrushSelectionTool(QgsMapTool):
 
             if ids:
                 should_add = self.add_to_selection or self.shift_pressed
-                method = layer.AddToSelection if should_add else layer.SetSelection
+                method = QgsVectorLayer.AddToSelection if should_add else QgsVectorLayer.SetSelection
                 layer.selectByIds(ids, method)
                 layer_counts.append((layer.name(), len(ids)))
                 total += len(ids)
@@ -222,56 +253,19 @@ class BrushSelectionPlugin:
         self.canvas = self.iface.mapCanvas()
         self.tool = None
         self.action = None
-        self.radius_slider = None
-        self.toolbar = None
-        self.radius_widget = None
-        self.active_only_label = None
 
     def initGui(self):
         icon_path = os.path.join(os.path.dirname(__file__), "icons", "paintbrush.png")
         self.action = QAction(QIcon(icon_path), "Brush Selection", self.iface.mainWindow())
+        self.action.setToolTip("Brush Selection - Use Shift+Scroll to change radius")
         self.action.triggered.connect(self.run)
         self.action.setCheckable(True)
-
-        self.toolbar = self.iface.addToolBar("Brush Selection")
-        self.toolbar.addAction(self.action)
-
-        # Radius control (pixels)
-        widget = QWidget()
-        layout = QHBoxLayout()
-        layout.setContentsMargins(2, 1, 2, 1)
-        layout.setSpacing(3)
-        layout.addWidget(QLabel("Radius (px):"))
-
-        self.radius_slider = QSlider(Qt.Horizontal)
-        self.radius_slider.setMinimum(1)
-        self.radius_slider.setMaximum(200)  # pixel radius range
-        self.radius_slider.setValue(20)
-        self.radius_slider.setMaximumWidth(80)
-        self.radius_slider.valueChanged.connect(self.radiusChanged)
-
-        self.radius_label = QLabel("20")
-        self.radius_label.setMinimumWidth(25)
-        layout.addWidget(self.radius_slider, 0)
-        layout.addWidget(self.radius_label, 0)
-
-        widget.setLayout(layout)
-        widget.setMaximumWidth(150)
-        self.radius_widget = widget
-        self.toolbar.addWidget(widget)
-
-        # Hide initially and only show when tool is active
-        widget.hide()
+        self.iface.addToolBarIcon(self.action)
 
     def unload(self):
-        if self.toolbar:
-            try:
-                self.iface.mainWindow().removeToolBar(self.toolbar)
-            except Exception:
-                pass
-            self.toolbar = None
         if self.action:
             self.action.setChecked(False)
+            self.iface.removeToolBarIcon(self.action)
             self.action = None
 
     def run(self):
@@ -280,23 +274,16 @@ class BrushSelectionPlugin:
             self.tool = BrushSelectionTool(
                 iface=self.iface,
                 canvas=self.canvas,
-                radius_px=self.radius_slider.value(),
+                radius_px=20,  # Default radius
                 segments=8,
                 add_to_selection=False,
                 active_layer_only=True,
             )
             self.canvas.setMapTool(self.tool)
-            # Show radius controls
-            self.radius_widget.show()
         else:
             # Tool is being deactivated
             if self.tool is not None:
                 self.canvas.unsetMapTool(self.tool)
                 self.tool = None
-            # Hide radius controls
-            self.radius_widget.hide()
 
-    def radiusChanged(self, value):
-        self.radius_label.setText(f"{value}")
-        if self.tool:
-            self.tool.setRadiusPx(value)
+

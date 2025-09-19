@@ -11,11 +11,13 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
 ---
 
 ## Features
-- Adjustable pixel-based brush radius (1–200 px) for consistent behavior across all projections  
-- Real‑time visual feedback: translucent cursor circle and brush‑stroke rubber band  
-- Efficient selection using spatial indexing with bounding‑box pre‑filtering  
-- Choose to add to existing selections or replace them  
-- Target the active polygon layer only (default) or all polygon layers  
+- Adjustable pixel-based brush radius (1–200 px) for consistent behavior across all projections
+- Real‑time visual feedback: translucent cursor circle and brush‑stroke rubber band
+- Efficient selection using spatial indexing with bounding‑box pre‑filtering
+- Choose to add to existing selections or replace them
+- Target the active polygon layer only (default) or all polygon layers
+- **Shift + Mouse Wheel**: Dynamic radius adjustment while tool is active
+- **Shift + Click**: Add to selection mode (overrides default setting)
 - Optimized for QGIS **3.28+**
 
 ---
@@ -25,24 +27,26 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
 ### From QGIS Plugin Manager
 1. Open QGIS.
 2. Go to **Plugins ➔ Manage and Install Plugins**.
-3. Search for **“Brush Selection Tool”** and click **Install Plugin**.
+3. Search for **"Brush Selection Tool"** and click **Install Plugin**.
 
 ### From Source
 1. Clone or download this repository.
-2. Copy the `brush-tool-selection` folder to your QGIS plugins directory  
+2. Copy the `brush-tool-selection` folder to your QGIS plugins directory
    (e.g., `~/.local/share/QGIS/QGIS3/profiles/default/python/plugins`).
 3. Restart QGIS and enable the plugin via **Plugins ➔ Manage and Install Plugins ➔ Installed**.
 
 ---
 
 ## Usage
-1. Activate the tool from **Plugins ➔ Brush Selection Tool** (or the toolbar icon).
-2. Adjust the brush radius via the slider (1–200 px).
-3. Click and drag with the left mouse button to “paint” over polygons.
-4. Release the mouse button to finalize the selection.
-5. Options:
-   - **Active layer only** – restricts selection to the current polygon layer.
-   - **Add to selection** – add to existing selection instead of replacing it.
+1. Activate the tool from the toolbar icon (paintbrush icon).
+2. Click and drag with the left mouse button to "paint" over polygons.
+3. Release the mouse button to finalize the selection.
+4. **Controls:**
+   - **Shift + Mouse Wheel**: Adjust brush radius (1–200 px) in real-time
+   - **Shift + Click/Drag**: Add to existing selection instead of replacing
+5. **Default Settings:**
+   - **Active layer only** – restricts selection to the current polygon layer
+   - **Replace selection** – replaces existing selection (use Shift to add instead)
 
 ![Demo GIF](docs/17-26-19-Clip20250903172818.gif)  
 [Download demo video](docs/17-26-19-Clip20250903172818.mp4)
