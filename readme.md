@@ -45,7 +45,6 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
 
 
 ![Demo GIF](docs/17-26-19-Clip20250903172818.gif)  
-[Download demo video](docs/17-26-19-Clip20250903172818.mp4)
 
 ---
 
