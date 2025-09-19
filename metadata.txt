@@ -1,6 +1,6 @@
 [general]
 name=Brush Selection Tool
-qgisMinimumVersion=3.4
+qgisMinimumVersion=3.40
 description=Brush-style polygon selection tool with intuitive painting interface
 about=Brush Selection Tool provides an intuitive "painting" interface for selecting polygon features in QGIS. Drag a circular brush across the map canvas—every polygon the brush touches becomes selected.
 version=0.1.0
