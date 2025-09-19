@@ -1,6 +1,6 @@
 # Brush Selection Tool for QGIS
 
-![Brush Selection Tool Logo](paintbrush.png)
+![Brush Selection Tool Logo](BrushSelectionTool/icons/paintbrush.png)
 
 [![QGIS 3.28+](https://img.shields.io/badge/QGIS-3.28%2B-green.svg)](https://qgis.org)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)](LICENSE)
