@@ -1,3 +1,4 @@
+import os
 from qgis.PyQt.QtCore import Qt, QPoint, QElapsedTimer
 from qgis.PyQt.QtGui import QIcon, QColor
 from qgis.PyQt.QtWidgets import QAction, QSlider, QLabel, QHBoxLayout, QWidget
@@ -223,40 +224,44 @@ class BrushSelectionPlugin:
         self.action = None
         self.radius_slider = None
         self.toolbar = None
+        self.radius_widget = None
         self.active_only_label = None
 
     def initGui(self):
-        self.action = QAction(QIcon(), "Brush Selection Tool (fast, px)", self.iface.mainWindow())
+        icon_path = os.path.join(os.path.dirname(__file__), "icons", "paintbrush.png")
+        self.action = QAction(QIcon(icon_path), "Brush Selection", self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         self.action.setCheckable(True)
 
-        self.toolbar = self.iface.addToolBar("Brush Selection (fast, px)")
+        self.toolbar = self.iface.addToolBar("Brush Selection")
         self.toolbar.addAction(self.action)
 
         # Radius control (pixels)
         widget = QWidget()
         layout = QHBoxLayout()
-        layout.setContentsMargins(6, 2, 6, 2)
+        layout.setContentsMargins(2, 1, 2, 1)
+        layout.setSpacing(3)
         layout.addWidget(QLabel("Radius (px):"))
 
         self.radius_slider = QSlider(Qt.Horizontal)
         self.radius_slider.setMinimum(1)
         self.radius_slider.setMaximum(200)  # pixel radius range
         self.radius_slider.setValue(20)
+        self.radius_slider.setMaximumWidth(80)
         self.radius_slider.valueChanged.connect(self.radiusChanged)
 
-        self.radius_label = QLabel("20 px")
-        layout.addWidget(self.radius_slider)
-        layout.addWidget(self.radius_label)
+        self.radius_label = QLabel("20")
+        self.radius_label.setMinimumWidth(25)
+        layout.addWidget(self.radius_slider, 0)
+        layout.addWidget(self.radius_label, 0)
 
         widget.setLayout(layout)
+        widget.setMaximumWidth(150)
+        self.radius_widget = widget
         self.toolbar.addWidget(widget)
 
-        # Hint: active layer only
-        self.active_only_label = QLabel("Active layer only")
-        self.active_only_label.setToolTip("Selection is performed on the active polygon layer for speed. "
-                                          "Change via tool.setActiveLayerOnly(False) if needed.")
-        self.toolbar.addWidget(self.active_only_label)
+        # Hide initially and only show when tool is active
+        widget.hide()
 
     def unload(self):
         if self.toolbar:
@@ -271,6 +276,7 @@ class BrushSelectionPlugin:
 
     def run(self):
         if self.action.isChecked():
+            # Tool is being activated
             self.tool = BrushSelectionTool(
                 iface=self.iface,
                 canvas=self.canvas,
@@ -280,12 +286,17 @@ class BrushSelectionPlugin:
                 active_layer_only=True,
             )
             self.canvas.setMapTool(self.tool)
+            # Show radius controls
+            self.radius_widget.show()
         else:
+            # Tool is being deactivated
             if self.tool is not None:
                 self.canvas.unsetMapTool(self.tool)
                 self.tool = None
+            # Hide radius controls
+            self.radius_widget.hide()
 
     def radiusChanged(self, value):
-        self.radius_label.setText(f"{value} px")
+        self.radius_label.setText(f"{value}")
         if self.tool:
             self.tool.setRadiusPx(value)
