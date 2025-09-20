@@ -1,0 +1,77 @@
+[project]
+name = "brush-tool-selection"
+description = "QGIS plugin for brush-based feature selection"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "ruff>=0.13.1",
+]
+
+[tool.ruff]
+# Set line length to 88 (Black's default)
+line-length = 88
+
+# Assume Python 3.9+ 
+target-version = "py39"
+
+# Exclude common directories
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    ".env",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+# Also enable import sorting (`I`), and some common linting rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+]
+
+# Ignore specific rules that might be too strict for QGIS plugins
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "B008",   # Do not perform function calls in argument defaults (common in Qt)
+    "UP032",  # Use f-string instead of format (might break QGIS compatibility)
+]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Automatically detect the appropriate line ending
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+# Import sorting configuration
+known-first-party = ["BrushSelectionTool"]
+force-single-line = false
+combine-as-imports = true
+
+# QGIS-specific import grouping
+known-third-party = ["qgis"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.lint.mccabe]
+# Maximum cyclomatic complexity
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore import organization in __init__.py files
+"__init__.py" = ["F401", "I001"]

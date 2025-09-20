@@ -1,17 +1,17 @@
 import os
-from qgis.PyQt.QtCore import Qt, QPoint, QElapsedTimer
-from qgis.PyQt.QtGui import QIcon, QColor
-from qgis.PyQt.QtWidgets import QAction
+
 from qgis.core import (
-    QgsProject,
+    QgsFeatureRequest,
     QgsGeometry,
     QgsPointXY,
-    QgsWkbTypes,
-    QgsFeatureRequest,
-    QgsRectangle,
+    QgsProject,
     QgsVectorLayer,
+    QgsWkbTypes,
 )
 from qgis.gui import QgsMapTool, QgsRubberBand
+from qgis.PyQt.QtCore import QElapsedTimer, Qt
+from qgis.PyQt.QtGui import QColor, QIcon
+from qgis.PyQt.QtWidgets import QAction
 
 
 class BrushSelectionTool(QgsMapTool):
@@ -23,12 +23,20 @@ class BrushSelectionTool(QgsMapTool):
     - Selection is done once with spatially indexed bbox prefiltering.
     """
 
-    def __init__(self, iface, canvas, radius_px=20, segments=8, add_to_selection=True, active_layer_only=True):
+    def __init__(
+        self,
+        iface,
+        canvas,
+        radius_px=20,
+        segments=8,
+        add_to_selection=True,
+        active_layer_only=True,
+    ):
         super().__init__(canvas)
         self.iface = iface
         self.canvas = canvas
         self.radius_px = int(radius_px)  # screen pixels
-        self.segments = int(segments)    # buffer segment resolution
+        self.segments = int(segments)  # buffer segment resolution
         self.add_to_selection = add_to_selection
         self.active_layer_only = active_layer_only
 
@@ -92,7 +100,9 @@ class BrushSelectionTool(QgsMapTool):
         self._append_point_if_far(event.mapPoint(), force=True)
 
         # Build final stroke geometry and select once
-        stroke_geom = self._build_stroke_geometry(self.path_points, self._radius_mu(), self.segments)
+        stroke_geom = self._build_stroke_geometry(
+            self.path_points, self._radius_mu(), self.segments
+        )
         if stroke_geom and not stroke_geom.isEmpty():
             self._select_features(stroke_geom)
 
@@ -113,7 +123,7 @@ class BrushSelectionTool(QgsMapTool):
                 self.setRadiusPx(new_radius)
 
                 # Update cursor circle immediately for visual feedback
-                if hasattr(event, 'pos'):
+                if hasattr(event, "pos"):
                     screen_pos = event.pos()
                     map_point = self.toMapCoordinates(screen_pos)
                     self._updateVisuals(map_point)
@@ -167,7 +177,9 @@ class BrushSelectionTool(QgsMapTool):
 
     def _updateVisuals(self, map_point: QgsPointXY):
         """Update the cursor circle at the tip and keep stroke_rb unchanged here."""
-        circle = QgsGeometry.fromPointXY(map_point).buffer(self._radius_mu(), max(8, self.segments))
+        circle = QgsGeometry.fromPointXY(map_point).buffer(
+            self._radius_mu(), max(8, self.segments)
+        )
         self.cursor_rb.setToGeometry(circle, None)
 
     def _updateStrokeRubberBand(self):
@@ -176,7 +188,9 @@ class BrushSelectionTool(QgsMapTool):
             self.stroke_rb.reset(QgsWkbTypes.PolygonGeometry)
             return
 
-        stroke = self._build_stroke_geometry(self.path_points, self._radius_mu(), self.segments)
+        stroke = self._build_stroke_geometry(
+            self.path_points, self._radius_mu(), self.segments
+        )
         if stroke and not stroke.isEmpty():
             self.stroke_rb.setToGeometry(stroke, None)
 
@@ -185,7 +199,9 @@ class BrushSelectionTool(QgsMapTool):
             return None
         try:
             if len(points) == 1:
-                return QgsGeometry.fromPointXY(points[0]).buffer(radius_mu, max(8, segments))
+                return QgsGeometry.fromPointXY(points[0]).buffer(
+                    radius_mu, max(8, segments)
+                )
             line = QgsGeometry.fromPolylineXY(points)
             return line.buffer(radius_mu, max(8, segments))
         except Exception:
@@ -194,11 +210,18 @@ class BrushSelectionTool(QgsMapTool):
     def _iter_target_layers(self):
         if self.active_layer_only:
             lyr = self.iface.activeLayer()
-            if lyr and lyr.type() == lyr.VectorLayer and lyr.geometryType() == QgsWkbTypes.PolygonGeometry:
+            if (
+                lyr
+                and lyr.type() == lyr.VectorLayer
+                and lyr.geometryType() == QgsWkbTypes.PolygonGeometry
+            ):
                 yield lyr
             return
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.type() == layer.VectorLayer and layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            if (
+                layer.type() == layer.VectorLayer
+                and layer.geometryType() == QgsWkbTypes.PolygonGeometry
+            ):
                 yield layer
 
     def _select_features(self, geom: QgsGeometry):
@@ -211,11 +234,7 @@ class BrushSelectionTool(QgsMapTool):
         timer.start()
 
         for layer in self._iter_target_layers():
-            req = (
-                QgsFeatureRequest()
-                .setFilterRect(bbox)
-                .setSubsetOfAttributes([])
-            )
+            req = QgsFeatureRequest().setFilterRect(bbox).setSubsetOfAttributes([])
 
             ids = []
             for feat in layer.getFeatures(req):
@@ -227,7 +246,11 @@ class BrushSelectionTool(QgsMapTool):
 
             if ids:
                 should_add = self.add_to_selection or self.shift_pressed
-                method = QgsVectorLayer.AddToSelection if should_add else QgsVectorLayer.SetSelection
+                method = (
+                    QgsVectorLayer.AddToSelection
+                    if should_add
+                    else QgsVectorLayer.SetSelection
+                )
                 layer.selectByIds(ids, method)
                 layer_counts.append((layer.name(), len(ids)))
                 total += len(ids)
@@ -256,7 +279,9 @@ class BrushSelectionPlugin:
 
     def initGui(self):
         icon_path = os.path.join(os.path.dirname(__file__), "icons", "paintbrush.png")
-        self.action = QAction(QIcon(icon_path), "Brush Selection", self.iface.mainWindow())
+        self.action = QAction(
+            QIcon(icon_path), "Brush Selection", self.iface.mainWindow()
+        )
         self.action.setToolTip("Brush Selection - Use Shift+Scroll to change radius")
         self.action.triggered.connect(self.run)
         self.action.setCheckable(True)
@@ -285,5 +310,3 @@ class BrushSelectionPlugin:
             if self.tool is not None:
                 self.canvas.unsetMapTool(self.tool)
                 self.tool = None
-
-
