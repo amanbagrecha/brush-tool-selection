@@ -2,33 +2,31 @@ name: Release Plugin
 
 on:
   release:
-    types: published
+    types: [published]
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.9
-
-      # Needed if the plugin is using Transifex, to have the lrelease command
-      # - name: Install Qt lrelease
-      #   run: |
-      #    sudo apt-get update
-      #    sudo apt-get install qt5-make qttools5-dev-tools
+          python-version: '3.9'
 
       - name: Install qgis-plugin-ci
         run: pip3 install qgis-plugin-ci
 
       - name: Deploy plugin
-        run: >-
-          qgis-plugin-ci
-          release ${GITHUB_REF/refs\/tags\//}
-          --github-token ${{ secrets.GITHUB_TOKEN }}
-          --osgeo-username ${{ secrets.OSGEO_USER }}
-          --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG#v}"
+          qgis-plugin-ci release "$VERSION" \
+            --release-tag "$TAG" \
+            --github-token "${{ secrets.GITHUB_TOKEN }}" \
+            --osgeo-username "${{ secrets.OSGEO_USER }}" \
+            --osgeo-password "${{ secrets.OSGEO_PASSWORD }}"
