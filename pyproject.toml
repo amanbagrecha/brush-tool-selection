@@ -64,6 +64,11 @@ known-first-party = ["BrushSelectionTool"]
 force-single-line = false
 combine-as-imports = true
 
+[qgis-plugin-ci]
+plugin_path = "."
+github_organization_slug = "amanbagrecha"
+project_slug = "brush-tool-selection"
+
 # QGIS-specific import grouping
 known-third-party = ["qgis"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
