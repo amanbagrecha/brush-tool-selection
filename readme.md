@@ -2,8 +2,9 @@
 
 ![Brush Selection Tool Logo](BrushSelectionTool/icons/paintbrush_64x64.png)
 
-[![QGIS 3.40+](https://img.shields.io/badge/QGIS-3.28%2B-green.svg)](https://qgis.org)
+[![QGIS 3.40+](https://img.shields.io/badge/QGIS-3.40%2B-green.svg)](https://qgis.org)
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Brush Selection Tool provides an intuitive "painting" interface for selecting polygon features in QGIS.  
 Drag a circular brush across the map canvas—every polygon the brush touches becomes selected.
