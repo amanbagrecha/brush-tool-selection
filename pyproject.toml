@@ -1,7 +1,7 @@
 [project]
 name = "brush-tool-selection"
 description = "QGIS plugin for brush-based feature selection"
-version = "0.1.0"
+version = "0.1.2"
 requires-python = ">=3.9"
 dependencies = [
     "ruff>=0.13.1",
@@ -68,7 +68,7 @@ known-third-party = ["qgis"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.qgis-plugin-ci]
-plugin_path = "."
+plugin_path = "BrushSelectionTool"
 github_organization_slug = "amanbagrecha"
 project_slug = "brush-tool-selection"
 
