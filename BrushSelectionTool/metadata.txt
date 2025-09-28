@@ -20,7 +20,7 @@ changelog=0.1.1 - Selection behavior improvements
     - Fix selection clearing when no features are found
     - Improve multi-layer selection handling
     - Enhanced shift/add to selection behavior
-0.1.0 - Initial release with brush selection functionality
+    0.1.0 - Initial release with brush selection functionality
     - Add adjustable pixel-based brush radius (1-200 px)
     - Target active polygon layer only or all polygon layers
     - Shift selection option support
