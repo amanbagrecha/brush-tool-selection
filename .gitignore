@@ -217,3 +217,5 @@ __marimo__/
 brush_selection_tool.zip
 .ruff_cache
 uv.lock
+
+metadata.txt
