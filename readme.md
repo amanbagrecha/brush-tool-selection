@@ -45,7 +45,9 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
    - **Shift + Click/Drag**: Add to existing selection instead of replacing
 
 
-![Demo GIF](docs/17-26-19-Clip20250903172818.gif)  
+## Demo
+
+[![Brush Selection Tool Demo](https://img.youtube.com/vi/S-qwbJLPPV0/0.jpg)](https://www.youtube.com/watch?v=S-qwbJLPPV0)
 
 ---
 

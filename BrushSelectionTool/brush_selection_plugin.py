@@ -254,6 +254,12 @@ class BrushSelectionTool(QgsMapTool):
                 layer.selectByIds(ids, method)
                 layer_counts.append((layer.name(), len(ids)))
                 total += len(ids)
+            else:
+                should_add = self.add_to_selection or self.shift_pressed
+                if not should_add:
+                    layer.removeSelection()
+                layer_counts.append((layer.name(), len(ids)))
+                total += len(ids)
 
         elapsed_ms = timer.elapsed()
         self.canvas.setRenderFlag(True)
