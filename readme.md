@@ -6,12 +6,13 @@
 [![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)](LICENSE)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-Brush Selection Tool provides an intuitive "painting" interface for selecting polygon features in QGIS.  
-Drag a circular brush across the map canvas—every polygon the brush touches becomes selected.
+Brush Selection Tool provides an intuitive "painting" interface for selecting vector features in QGIS.
+Drag a circular brush across the map canvas—every feature the brush touches becomes selected. Works with points, lines, polygons, and multipolygons.
 
 ---
 
 ## Features
+- **Supports all vector geometry types**: points, lines, polygons, and multipolygons
 - Adjustable pixel-based brush radius (1–200 px) for consistent behavior across all projections
 - Real‑time visual feedback: translucent cursor circle and brush‑stroke rubber band
 - Choose to add to existing selections or replace them
@@ -38,11 +39,12 @@ Drag a circular brush across the map canvas—every polygon the brush touches be
 
 ## Usage
 1. Activate the tool from the toolbar icon (paintbrush icon).
-2. Click and drag with the left mouse button to "paint" over polygons.
+2. Click and drag with the left mouse button to "paint" over features.
 3. Release the mouse button to finalize the selection.
 4. **Controls:**
    - **Shift + Mouse Wheel**: Adjust brush radius (1–200 px) in real-time
    - **Shift + Click/Drag**: Add to existing selection instead of replacing
+5. **Note:** Works on the active layer by default. Supports all vector geometry types (points, lines, polygons, multipolygons).
 
 
 ## Demo
