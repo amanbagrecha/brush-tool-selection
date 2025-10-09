@@ -210,18 +210,11 @@ class BrushSelectionTool(QgsMapTool):
     def _iter_target_layers(self):
         if self.active_layer_only:
             lyr = self.iface.activeLayer()
-            if (
-                lyr
-                and lyr.type() == lyr.VectorLayer
-                and lyr.geometryType() == QgsWkbTypes.PolygonGeometry
-            ):
+            if lyr and lyr.type() == lyr.VectorLayer:
                 yield lyr
             return
         for layer in QgsProject.instance().mapLayers().values():
-            if (
-                layer.type() == layer.VectorLayer
-                and layer.geometryType() == QgsWkbTypes.PolygonGeometry
-            ):
+            if layer.type() == layer.VectorLayer:
                 yield layer
 
     def _select_features(self, geom: QgsGeometry):
