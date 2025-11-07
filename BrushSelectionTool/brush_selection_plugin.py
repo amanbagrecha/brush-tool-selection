@@ -5,6 +5,7 @@ from qgis.core import (
     QgsGeometry,
     QgsPointXY,
     QgsProject,
+    QgsRenderContext,
     QgsVectorLayer,
     QgsWkbTypes,
 )
@@ -228,6 +229,14 @@ class BrushSelectionTool(QgsMapTool):
 
         for layer in self._iter_target_layers():
             req = QgsFeatureRequest().setFilterRect(bbox).setSubsetOfAttributes([])
+            # Respect layer's subset string (filter) - only iterate through filtered features
+            req.setFlags(QgsFeatureRequest.NoFlags)
+
+            # Set up renderer context to check feature visibility
+            renderer = layer.renderer().clone()
+            context = QgsRenderContext()
+            context.setExpressionContext(layer.createExpressionContext())
+            renderer.startRender(context, layer.fields())
 
             ids = []
             for feat in layer.getFeatures(req):
@@ -235,7 +244,12 @@ class BrushSelectionTool(QgsMapTool):
                 if not fgeom or fgeom.isEmpty():
                     continue
                 if fgeom.intersects(geom):
-                    ids.append(feat.id())
+                    # Check if feature would actually be rendered (respects categorized symbology visibility)
+                    context.expressionContext().setFeature(feat)
+                    if renderer.willRenderFeature(feat, context):
+                        ids.append(feat.id())
+
+            renderer.stopRender(context)
 
             if ids:
                 should_add = self.add_to_selection or self.shift_pressed
