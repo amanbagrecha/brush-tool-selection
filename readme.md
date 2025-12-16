@@ -82,7 +82,7 @@ See the `changelog` entry in [metadata.txt](metadata.txt) for version history.
 ---
 
 ## Release
-This project uses [qgis-plugin-ci](https://github.com/opengisch/qgis-plugin-ci) to package and publish the plugin.
+This project uses [qgis-plugin-ci](https://github.com/opengisch/qgis-plugin-ci) and a GitHub Actions workflow to package and publish new versions to the QGIS Plugin Repository.
 
 ### Required secrets
 The GitHub release workflow requires the following repository secrets:
@@ -90,9 +90,18 @@ The GitHub release workflow requires the following repository secrets:
 - `OSGEO_USERNAME` – OSGeo username with permission to publish the plugin
 - `OSGEO_PASSWORD` – Password for the OSGeo account
 
-### Procedure
-1. Update `metadata.txt` with a new version number.
-2. Commit and push your changes.
-3. Create and push a tag for the new version, e.g. `git tag -a 1.0.0 -m "Release 1.0.0"` and `git push origin 1.0.0`.
-4. GitHub Actions packages the plugin and uploads it to the QGIS Plugin Repository.
+### Publishing procedure
+1. Update `metadata.txt` with the new version number and changelog entry.
+2. Merge the release branch into `main`.
+3. Sync your local `main` branch:
+   ```bash
+   git checkout main
+   git pull
+   ```
+4. Create and push a tag for the new version (the CI workflow listens for tags):
+   ```bash
+   git tag -a 0.1.2 -m "Release 0.1.2"
+   git push origin 0.1.2
+   ```
+5. GitHub Actions builds the plugin with `qgis-plugin-ci` and publishes it to the QGIS Plugin Repository.
 
