@@ -1,6 +1,7 @@
 import os
 
 from qgis.core import (
+    QgsCoordinateTransform,
     QgsFeatureRequest,
     QgsGeometry,
     QgsPointXY,
@@ -219,7 +220,7 @@ class BrushSelectionTool(QgsMapTool):
                 yield layer
 
     def _select_features(self, geom: QgsGeometry):
-        bbox = geom.boundingBox()
+        canvas_crs = self.canvas.mapSettings().destinationCrs()
         total = 0
         layer_counts = []
 
@@ -228,11 +229,18 @@ class BrushSelectionTool(QgsMapTool):
         timer.start()
 
         for layer in self._iter_target_layers():
+            layer_crs = layer.crs()
+            if canvas_crs != layer_crs:
+                transform = QgsCoordinateTransform(canvas_crs, layer_crs, QgsProject.instance())
+                layer_geom = QgsGeometry(geom)
+                layer_geom.transform(transform)
+            else:
+                layer_geom = geom
+
+            bbox = layer_geom.boundingBox()
             req = QgsFeatureRequest().setFilterRect(bbox).setSubsetOfAttributes([])
-            # Respect layer's subset string (filter) - only iterate through filtered features
             req.setFlags(QgsFeatureRequest.NoFlags)
 
-            # Set up renderer context to check feature visibility
             renderer = layer.renderer().clone()
             context = QgsRenderContext()
             context.setExpressionContext(layer.createExpressionContext())
@@ -243,8 +251,7 @@ class BrushSelectionTool(QgsMapTool):
                 fgeom = feat.geometry()
                 if not fgeom or fgeom.isEmpty():
                     continue
-                if fgeom.intersects(geom):
-                    # Check if feature would actually be rendered (respects categorized symbology visibility)
+                if fgeom.intersects(layer_geom):
                     context.expressionContext().setFeature(feat)
                     if renderer.willRenderFeature(feat, context):
                         ids.append(feat.id())
